@@ -116,5 +116,25 @@ Never send messages without awaiting the finish call.
 
 
 
-```
+## Critical Runtime Patterns
+
+NEVER forget to call modify.getCreator().finish(messageBuilder)
+after building a message. Without this the message is built but
+never actually sent. No error is thrown — it silently does nothing.
+This is the most invisible bug in RC App development.
+
+Example of WRONG code:
+const msg = modify.getCreator().startMessage()
+    .setRoom(room)
+    .setText('Hello');
+await modify.getNotifier().notifyUser(user, msg.getMessage());
+
+Example of CORRECT code:
+const messageBuilder = modify.getCreator().startMessage()
+    .setRoom(room)
+    .setText('Hello');
+await modify.getCreator().finish(messageBuilder);
+
+Also never use (data as any) when reading persistence.
+Always define a proper interface for your stored data.
 
