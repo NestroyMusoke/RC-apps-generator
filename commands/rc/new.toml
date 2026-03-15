@@ -1,0 +1,14 @@
+description = "Create a new Rocket.Chat app with the specified features"
+prompt = """
+Create a new Rocket.Chat App called {{args}}.
+
+Follow all RC Apps Engine patterns and safety rules from
+your context. Generate the complete folder structure
+including AppNameApp.ts, app.json, package.json,
+and tsconfig.json.
+
+Ask me what features I want if I haven't specified them.
+Features can include: slash commands, message listeners,
+persistence, HTTP calls, UIKit modals, webhooks, or
+scheduled tasks.
+"""

@@ -1,0 +1,120 @@
+---
+
+name: slash-command
+
+description: >
+
+&nbsp; Expert knowledge for creating Rocket.Chat slash commands.
+
+&nbsp; Activate when the user asks for a slash command, a command
+
+&nbsp; that starts with /, or a bot command that users can type.
+
+---
+
+
+
+\# Slash Command Expert
+
+
+
+You are generating a Rocket.Chat slash command handler.
+
+Always follow these exact patterns:
+
+
+
+\## Required Interface
+
+
+
+import { ISlashCommand, SlashCommandContext }
+
+&nbsp; from '@rocket.chat/apps-engine/definition/slashcommands';
+
+import { IModify, IRead } from
+
+&nbsp; '@rocket.chat/apps-engine/definition/accessors';
+
+
+
+\## Required Structure
+
+
+
+export class YourCommandName implements ISlashCommand {
+
+&nbsp;   public command = 'your-command-name';
+
+&nbsp;   public i18nDescription = 'Your\_Command\_Description';
+
+&nbsp;   public i18nParamsExample = 'Your\_Command\_Params';
+
+&nbsp;   public providesPreview = false;
+
+
+
+&nbsp;   public async executor(
+
+&nbsp;       context: SlashCommandContext,
+
+&nbsp;       read: IRead,
+
+&nbsp;       modify: IModify,
+
+&nbsp;   ): Promise<void> {
+
+&nbsp;       const sender = context.getSender();
+
+&nbsp;       const room = context.getRoom();
+
+
+
+&nbsp;       const message = modify.getCreator().startMessage()
+
+&nbsp;           .setRoom(room)
+
+&nbsp;           .setText('Your response here');
+
+
+
+&nbsp;       await modify.getCreator().finish(message);
+
+&nbsp;   }
+
+}
+
+
+
+\## Registration
+
+
+
+After creating the class you must register it in the
+
+main App file inside the extendConfiguration method:
+
+
+
+configuration.slashCommands.provideSlashCommand(
+
+&nbsp;   new YourCommandName()
+
+);
+
+
+
+\## Common Mistakes To Avoid
+
+
+
+Never forget to register the command in extendConfiguration.
+
+Never use room.id directly — always get room from context.
+
+Never send messages without awaiting the finish call.
+
+
+
+```
+
