@@ -1,144 +1,80 @@
 ---
-
 name: message-listener
-
 description: >
-
-&nbsp; Expert knowledge for creating Rocket.Chat message listeners.
-
-&nbsp; Activate when the user asks to respond to messages, watch
-
-&nbsp; for messages, trigger on messages, or react to chat activity.
-
+  Expert knowledge for creating Rocket.Chat message listeners.
+  Activate when the user asks to respond to messages, watch
+  for messages, trigger on messages, or react to chat activity.
 ---
 
-
-
-\# Message Listener Expert
-
-
+# Message Listener Expert
 
 You are generating a Rocket.Chat message listener.
+Always follow these exact patterns.
 
-Always follow these exact patterns:
+## Critical Registration Rule
 
+NEVER create a separate listener class and try to register it
+through configuration. This does NOT work.
 
-
-\## Critical Safety Rule
-
-
-
-ALWAYS add this check at the very start of executePostMessageSent.
-
-This prevents infinite loops where the bot responds to itself:
-
-
-
-if (message.sender.type === 'bot') {
-
-&nbsp;   return;
-
-}
-
-
-
-This is the most common mistake in RC App development.
-
-Khizar's experiment proved that without this check, a greeting
-
-bot will respond to its own messages and loop forever.
-
-
-
-\## Required Interface
-
-
-
-import { IPostMessageSent }
-
-&nbsp; from '@rocket.chat/apps-engine/definition/messages';
-
-import { IModify, IRead, IHttp, IPersistence }
-
-&nbsp; from '@rocket.chat/apps-engine/definition/accessors';
-
-import { IMessage }
-
-&nbsp; from '@rocket.chat/apps-engine/definition/messages';
-
-
-
-\## Required Structure
-
-
-
-export class YourListenerName implements IPostMessageSent {
-
-&nbsp;   async executePostMessageSent(
-
-&nbsp;       message: IMessage,
-
-&nbsp;       read: IRead,
-
-&nbsp;       http: IHttp,
-
-&nbsp;       persistence: IPersistence,
-
-&nbsp;       modify: IModify,
-
-&nbsp;   ): Promise<void> {
-
-
-
-&nbsp;       if (message.sender.type === 'bot') {
-
-&nbsp;           return;
-
-&nbsp;       }
-
-
-
-&nbsp;       // Your logic here
-
-&nbsp;   }
-
-}
-
-
-
-\## Registration
-
-
-
-Register in the main App file:
-
-
-
-public async extendConfiguration(
-
-&nbsp;   configuration: IConfigurationExtend,
-
-): Promise<void> {
-
-&nbsp;   configuration.messages.onPostMessageSent(
-
-&nbsp;       new YourListenerName()
-
-&nbsp;   );
-
-}
-
-
-
-\## Common Mistakes To Avoid
-
-
-
-Never skip the bot message check — it will cause infinite loops.
-
-Never modify the original message — always create a new one.
-
-Never forget to register the listener in extendConfiguration.
-
+The ONLY correct way is to implement IPostMessageSent directly
+on the main App class:
+```typescript
+export class YourApp extends App implements IPostMessageSent {
 ```
 
+Without the implements declaration on the App class, the listener
+is silently ignored. No error is thrown. The app deploys and
+enables but the listener never fires. This is invisible.
+
+## Required Imports
+```typescript
+import { IPostMessageSent, IMessage } from '@rocket.chat/apps-engine/definition/messages';
+import { IRead, IHttp, IModify, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
+```
+
+## Required Structure
+```typescript
+export class YourApp extends App implements IPostMessageSent {
+
+    public async checkPostMessageSent(message: IMessage, read: IRead, http: IHttp): Promise<boolean> {
+        // Return true only for messages you want to handle
+        // Return false to skip — this is efficient and prevents unnecessary processing
+        const text = message.text || '';
+        return text.includes('your-trigger-keyword');
+    }
+
+    public async executePostMessageSent(message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify): Promise<void> {
+        // Never fire on bot messages — causes infinite loops
+        if (message.sender.type === 'bot') return;
+
+        const sender = message.sender;
+        const room = message.room;
+
+        // For ephemeral messages (only visible to one user)
+        // ALWAYS use read.getNotifier() — never modify.getCreator()
+        const notifier = read.getNotifier();
+        const builder = notifier.getMessageBuilder();
+        builder.setText('Your message here');
+        builder.setRoom(room);
+        await notifier.notifyUser(sender, builder.getMessage());
+    }
+}
+```
+
+## Ephemeral vs Public Messages
+
+Use read.getNotifier() when the message should only be visible
+to one specific user (ephemeral).
+
+Use modify.getCreator().startMessage() + finish() when the
+message should be visible to everyone in the channel.
+
+Using modify.getCreator() for ephemeral messages silently
+fails — the message is never delivered.
+
+## Common Mistakes To Avoid
+
+Never create a separate listener class for registration.
+Never skip the implements IPostMessageSent declaration.
+Never use modify.getCreator() for ephemeral notifications.
+Never skip the bot sender check — it causes infinite loops.
