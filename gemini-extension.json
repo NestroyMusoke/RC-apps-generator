@@ -1,6 +1,16 @@
 {
-  "name": "rc-apps-generator",
-  "version": "0.1.0",
-  "contextFileName": "GEMINI.md",
-  "settings": []
+  "name": "RC-Apps-Generator",
+  "version": "1.0.0",
+  "description": "Test-Driven Forge for Rocket.Chat Apps",
+  "commands": [
+    "commands/rc/new.toml",
+    "commands/rc/forge.ts"
+  ],
+  "skills": [
+    "skills/message-listener",
+    "skills/persistence",
+    "skills/slash-command",
+    "skills/http",
+    "skills/rc-tests"
+  ]
 }

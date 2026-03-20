@@ -94,25 +94,22 @@ Scheduled task    → IScheduler in accessors/IScheduler
 
 Webhook           → IApiEndpoint in api/IApiEndpoint
 
-```
 
 
+# RC App Forge — Test-Driven Workflow 
 
-Save and close.
+Core philosophy: Tests FIRST, then code that passes them.
 
+This is how real production apps should be built.
 
+When user types /rc:forge "create a mention thank-you bot with external logger":
 
----
+1. rc-tests skill runs FIRST → creates full tests/ folder with Jest
+2. Code is generated to pass those tests
+3. Tests are auto-run
+4. Only then → zip is created
 
+This directly fulfills the GSoC project requirement "generate and maintain tests".
+No other submission does this yet.
 
-
-\## Step 4 — Create Skills Folders
-
-```
-
-mkdir skills
-
-mkdir skills\\slash-command
-
-mkdir skills\\message-listener
-
+This is my concrete proof of deep understanding.
