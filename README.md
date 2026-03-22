@@ -1,9 +1,14 @@
-# AI Rocket.Chat Apps Generator (Gemini CLI Extension)
+# AI Rocket.Chat Apps Generator
 
-**Project Mini Prototype** — Turns plain English into production-ready Rocket.Chat apps on first try.
+**Gemini CLI Extension** — Prototype for Google Summer of Code 2026
 
-## What it solves 
-- Silent failures (wrong notifier, missing bot check, public vs ephemeral)
-- Workspace incompatibility (version-specific packaging)
-- No more manual debugging
+This extension adds Rocket.Chat-specific context to Gemini CLI so it generates apps that are both structurally correct and behaviourally compatible with real workspaces.
+
+### The Problem It Addresses
+Without platform context, Gemini produces code that:
+- Compiles cleanly
+- Deploys successfully
+- Fails silently at runtime (wrong notifier, missing bot checks, public instead of ephemeral messages, version mismatches)
+
+This prototype implements the exact 4-layer pipeline 
 
