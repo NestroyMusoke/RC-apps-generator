@@ -12,6 +12,13 @@ Without platform context, Gemini produces code that:
 
 This prototype implements the exact 4-layer pipeline 
 Below is a use case example of how this extension currrently works when given a command "Create a slash command that sends an ephemeral thank-you message on mention" after probing the target workspace environment
-![Exhibit 1 ](Sc.png)
+![Exhibit 1 ](1.png)
+![Exhibit 2 ](2.png)
+![Exhibit 3 ](3.png)
+![Exhibit 4 ](4.png)
+![Exhibit 5 ](5.png)
+![Exhibit 6 ](6.png)
+![Exhibit 7 ](7.png)
+![Exhibit 8 ](8.png)
 
 
